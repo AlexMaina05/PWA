@@ -1,5 +1,5 @@
-// Service Worker (aggiornato): cache app shell + vendor libs + safe cache-bump handling
-const CACHE_NAME = 'vault-app-shell-v3'; // incrementa qui ogni volta che pubblichi cambi importanti
+// Service Worker (sostituisci ./sw.js nel repo con questo per forzare cache-bump)
+const CACHE_NAME = 'vault-app-shell-v6'; // <-- bump this on each major release
 const ASSETS = [
   './',
   './index.html',
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // navigation -> serve index.html cached
+  // navigation -> serve index.html cached (app shell)
   if (req.mode === 'navigate') {
     event.respondWith(
       caches.match('./index.html').then(cached => cached || fetch(req).catch(()=>caches.match('./index.html')))
@@ -55,13 +55,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // same-origin -> cache-first
+  // same-origin -> cache-first strategy
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(req).then(cached => {
         if (cached) return cached;
         return fetch(req).then(netRes => {
-          // try to cache for future
           return caches.open(CACHE_NAME).then(cache => {
             try { cache.put(req, netRes.clone()); } catch (e) { console.warn('[SW] cache.put failed', e); }
             return netRes;
