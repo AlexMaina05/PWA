@@ -1,0 +1,91 @@
+/* Aggiungi/append queste regole in fondo a styles.css */
+
+/* New mobile slide animations */
+@keyframes pwa-slide-up-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes pwa-slide-up-out {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(12px); opacity: 0; }
+}
+
+/* Existing slide animations (desktop) */
+@keyframes pwa-slide-in { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes pwa-slide-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-12px); opacity: 0; } }
+
+/* Base badge styles (keep existing rules) */
+#pwa-badge.pwa-badge {
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  z-index: 9999;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+  display: none; /* JS controls visibility */
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(6px);
+  cursor: default;
+  transition: transform 260ms cubic-bezier(.2,.8,.2,1), opacity 220ms ease;
+  will-change: transform, opacity;
+  color: #fff;
+  pointer-events: auto;
+}
+
+/* Visible / hide classes trigger animations */
+#pwa-badge.pwa-badge.visible {
+  display: flex;
+  animation: pwa-slide-in 260ms cubic-bezier(.2,.8,.2,1) both;
+  opacity: 1;
+  transform: translateY(0);
+}
+#pwa-badge.pwa-badge.hide {
+  animation: pwa-slide-out 200ms ease both;
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+/* Mobile (bottom) variant: place at bottom and use slide-up animations */
+#pwa-badge.pwa-badge.bottom {
+  top: auto;
+  bottom: 12px;
+  right: 12px;
+  left: auto;
+  transform-origin: bottom right;
+}
+#pwa-badge.pwa-badge.bottom.visible {
+  display: flex;
+  animation: pwa-slide-up-in 260ms cubic-bezier(.2,.8,.2,1) both;
+}
+#pwa-badge.pwa-badge.bottom.hide {
+  animation: pwa-slide-up-out 200ms ease both;
+}
+
+/* Child elements (unchanged) */
+#pwa-badge .pwa-badge-text { line-height:1; font-weight:600; color:#fff; }
+#pwa-badge .pwa-badge-action {
+  border:none;background:rgba(255,255,255,0.12);color:#fff;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12px;
+}
+#pwa-badge .pwa-badge-close {
+  background:transparent;border:none;color:rgba(255,255,255,0.85);cursor:pointer;font-size:13px;margin-left:4px;
+}
+
+/* Status variants */
+#pwa-badge.offline { background: linear-gradient(90deg,#ef4444,#dc2626); }
+#pwa-badge.online { background: linear-gradient(90deg,#10b981,#06b6d4); }
+#pwa-badge.update-available { background: linear-gradient(90deg,#f59e0b,#f97316); }
+#pwa-badge.installable { background: linear-gradient(90deg,#3b82f6,#06b6d4); }
+
+/* Responsive tweak: center on very small screens (optional) */
+@media (max-width: 360px) {
+  #pwa-badge.pwa-badge.bottom {
+    right: 50%;
+    transform: translateX(50%);
+    border-radius: 999px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
