@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vault — Password Manager client-side (secure)</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#071228" />
+  <meta name="description" content="Password manager minimale client-side: vault locale cifrato con Argon2 + AES-GCM, IndexedDB, auto-lock e clipboard wipe." />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.svg" />
+</head>
+<body>
+  <header class="header">
+    <h1>Vault</h1>
+    <p class="sub">Password manager minimale — tutto nel browser, cifratura locale</p>
+  </header>
+
+  <main class="container">
+    <section id="screen-auth" class="card">
+      <h2 id="auth-title">Crea Vault</h2>
+
+      <div id="create-block" class="auth-block">
+        <label>Master password
+          <input id="create-password" type="password" placeholder="Inserisci master password" autocomplete="new-password" />
+        </label>
+        <label>Conferma master password
+          <input id="create-password-confirm" type="password" placeholder="Conferma" autocomplete="new-password" />
+        </label>
+
+        <div class="row small">
+          <label>Forza password <span id="pw-strength-label" class="tag">—</span></label>
+        </div>
+
+        <details class="small">
+          <summary>Opzioni di sicurezza avanzate</summary>
+          <div class="small">
+            <label>Argon2 time (iterations) <input id="argon-time" type="number" value="3" min="1" /></label>
+            <label>Argon2 memory (KiB) <input id="argon-memory" type="number" value="65536" min="4" /></label>
+            <label>Argon2 parallelism <input id="argon-parallel" type="number" value="1" min="1" /></label>
+            <label>Auto‑lock (sec) <input id="auto-lock-seconds" type="number" value="300" min="10" /></label>
+            <label>Clipboard wipe (sec) <input id="clipboard-wipe-seconds" type="number" value="15" min="0" /></label>
+            <p class="muted">Valori più alti aumentano la sicurezza ma impattano UX al momento della derivazione chiave.</p>
+          </div>
+        </details>
+
+        <button id="create-vault-btn" class="btn primary">Crea Vault</button>
+      </div>
+
+      <div id="unlock-block" class="auth-block hidden">
+        <label>Master password
+          <input id="unlock-password" type="password" placeholder="Inserisci master password" autocomplete="current-password" />
+        </label>
+        <button id="unlock-vault-btn" class="btn primary">Sblocca Vault</button>
+      </div>
+
+      <div id="existing-actions" class="auth-footer hidden">
+        <small>Vault presente: puoi <button id="export-vault-short" class="link">esportarlo</button>, <button id="import-vault-short" class="link">importare</button> o <button id="delete-vault-short" class="link danger">cancellarlo</button>.</small>
+      </div>
+    </section>
+
+    <section id="screen-vault" class="card hidden">
+      <div class="vault-header">
+        <h2>Le tue credenziali</h2>
+        <div class="vault-actions">
+          <button id="lock-btn" class="btn">Blocca</button>
+          <button id="export-vault-btn" class="btn">Esporta vault</button>
+          <label class="file-btn">
+            Importa vault
+            <input id="import-file" type="file" accept="application/json" />
+          </label>
+          <button id="change-master-btn" class="btn">Cambia master password</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <input id="search" type="text" placeholder="Cerca (nome, username, note)..." />
+      </div>
+
+      <div id="entries-list" class="entries"></div>
+
+      <details open class="card small">
+        <summary>Aggiungi nuova voce</summary>
+        <div class="add-form">
+          <label>Nome (es. sito)
+            <input id="entry-name" type="text" placeholder="Esempio: GitHub" />
+          </label>
+          <label>Username / Email
+            <input id="entry-username" type="text" placeholder="user@example.com" />
+          </label>
+          <label>Password
+            <input id="entry-password" type="text" placeholder="Scegli o genera" />
+          </label>
+          <div class="row small">
+            <button id="generate-password-btn" class="btn">Genera</button>
+            <select id="gen-length" class="select">
+              <option value="12">12</option>
+              <option value="16" selected>16</option>
+              <option value="24">24</option>
+              <option value="32">32</option>
+            </select>
+            <label><input id="gen-symbols" type="checkbox" checked /> simboli</label>
+          </div>
+          <label>Note
+            <textarea id="entry-notes" rows="3" placeholder="Annotazioni (opzionale)"></textarea>
+          </label>
+          <div class="row">
+            <button id="add-entry-btn" class="btn primary">Aggiungi voce</button>
+            <button id="clear-form-btn" class="btn">Pulisci</button>
+          </div>
+        </div>
+      </details>
+
+      <div class="card small">
+        <h3>Informazioni</h3>
+        <ul>
+          <li>Tutti i dati rimangono nel browser. Il vault è cifrato con AES‑GCM e la chiave è derivata principalmente con Argon2id.</li>
+          <li>Se perdi la master password non è possibile recuperare il vault.</li>
+          <li>Per sicurezza non eseguire script di terze parti nella pagina (XSS).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="screen-change" class="card hidden">
+      <h2>Cambia master password</h2>
+      <label>Nuova master password
+        <input id="new-master" type="password" placeholder="Nuova master password" />
+      </label>
+      <label>Conferma
+        <input id="new-master-confirm" type="password" placeholder="Conferma" />
+      </label>
+      <div class="row">
+        <button id="apply-change-btn" class="btn primary">Applica</button>
+        <button id="cancel-change-btn" class="btn">Annulla</button>
+      </div>
+    </section>
+
+    <input id="hidden-download-anchor" type="hidden" />
+
+    <footer class="footer">
+      <small>Vault — progetto didattico. Usa password forti. © AlexMaina05</small>
+    </footer>
+  </main>
+
+  <!-- Local (vendored) libs -->
+  <script src="./libs/dexie.min.js"></script>
+  <script src="./libs/argon2.min.js"></script>
+  <script src="./libs/zxcvbn.js"></script>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
