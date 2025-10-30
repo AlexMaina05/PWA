@@ -1,0 +1,7 @@
+# JavaScript vendor libraries (download via download_libs.sh)
+libs/
+
+# Development files
+.DS_Store
+*.log
+node_modules/
