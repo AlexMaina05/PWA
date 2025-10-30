@@ -15,6 +15,8 @@ The application needs the following libraries in the `./libs/` directory:
 
 ### Option 1: Using the download script (Recommended)
 
+**Note**: The `download_libs.sh` script is included in the project root directory.
+
 1. Make the script executable:
    ```bash
    chmod +x download_libs.sh
@@ -38,12 +40,12 @@ If you can't use the script, download these files manually:
    - URL: https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.min.js
    - Save to: `./libs/dexie.min.js`
 
-2. **Argon2 JS** (latest):
-   - URL: https://cdn.jsdelivr.net/npm/argon2-browser/dist/argon2.min.js
+2. **Argon2 JS** (v1.18.0):
+   - URL: https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2.min.js
    - Save to: `./libs/argon2.min.js`
 
-3. **Argon2 WASM** (latest):
-   - URL: https://cdn.jsdelivr.net/npm/argon2-browser/dist/argon2.wasm
+3. **Argon2 WASM** (v1.18.0):
+   - URL: https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2.wasm
    - Save to: `./libs/argon2.wasm`
 
 4. **zxcvbn** (v4.4.2):
@@ -60,11 +62,13 @@ After downloading the libraries:
    - Set source to main branch, root directory
 
 2. **For local testing**:
-   - Start a local web server (HTTPS required for full PWA features):
+   - Start a local web server:
      ```bash
+     # HTTP (basic testing, limited PWA features)
      python3 -m http.server 8080
      ```
    - Open http://localhost:8080 in your browser
+   - **Note**: Full PWA features (service worker, installation) require HTTPS, except on localhost
 
 3. **For production**:
    - Ensure all files are served over HTTPS
